@@ -14,11 +14,11 @@ import { saveToIPFS } from '../../features/api/ipfs';
 import { useWallet } from '../../features/common/Auth';
 import { deployRoundContract } from '../../features/api/round';
 import { waitForSubgraphSyncTo } from '../../features/api/subgraph';
-import { SchemaQuestion } from '../../features/api/utils';
+import { SchemaQuestion, votingStrategies } from '../../features/api/utils';
 import { datadogLogs } from '@datadog/browser-logs';
 import { Signer } from '@ethersproject/abstract-signer';
 import { deployLensVotingContract } from '../../features/api/votingStrategy/lensVotingStrategy';
-// import { deployQFVotingContract } from '../../features/api/votingStrategy/qfVotingStrategy';
+import { deployQFVotingContract } from '../../features/api/votingStrategy/qfVotingStrategy';
 import { deployMerklePayoutStrategyContract } from '../../features/api/payoutStrategy/merklePayoutStrategy';
 
 type SetStatusFn = React.Dispatch<SetStateAction<ProgressStatus>>;
@@ -161,6 +161,7 @@ const _createRound = async ({
 
     const votingContractAddress = await handleDeployVotingContract(
       setVotingContractDeploymentStatus,
+      round.votingStrategy || 'LINEAR_QUADRATIC_FUNDING',
       signerOrProvider
     );
 
@@ -297,13 +298,17 @@ async function storeDocuments(
 
 async function handleDeployVotingContract(
   setDeploymentStatus: SetStatusFn,
+  votingStrategyName: string,
   signerOrProvider: Signer
 ): Promise<string> {
+  const deployer =
+    votingStrategyName === votingStrategies.LENS_COLLECT.id
+      ? deployLensVotingContract
+      : deployQFVotingContract;
+
   try {
     setDeploymentStatus(ProgressStatus.IN_PROGRESS);
-    const { votingContractAddress } = await deployLensVotingContract(
-      signerOrProvider
-    );
+    const { votingContractAddress } = await deployer(signerOrProvider);
 
     setDeploymentStatus(ProgressStatus.IS_SUCCESS);
     return votingContractAddress;

@@ -1,6 +1,6 @@
-import { FormStepper } from "../common/FormStepper";
-import { Fragment, useContext, useState } from "react";
-import { FormContext } from "../common/FormWizard";
+import { FormStepper } from '../common/FormStepper';
+import { Fragment, useContext, useState } from 'react';
+import { FormContext } from '../common/FormWizard';
 import {
   Control,
   FieldErrors,
@@ -9,21 +9,26 @@ import {
   useForm,
   UseFormRegisterReturn,
   useWatch,
-} from "react-hook-form";
-import { Round } from "../api/types";
-import { Input } from "common/src/styles";
+} from 'react-hook-form';
+import { Round } from '../api/types';
+import { Input } from 'common/src/styles';
 import {
   CheckIcon,
   InformationCircleIcon,
   SelectorIcon,
-} from "@heroicons/react/solid";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { Listbox, RadioGroup, Transition } from "@headlessui/react";
-import { classNames } from "common";
-import { PayoutToken, getPayoutTokenOptions } from "../api/utils";
-import ReactTooltip from "react-tooltip";
-import { useWallet } from "../common/Auth";
+} from '@heroicons/react/solid';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { Listbox, RadioGroup, Transition } from '@headlessui/react';
+import { classNames } from 'common';
+import {
+  PayoutToken,
+  getPayoutTokenOptions,
+  ChainId,
+  votingStrategies,
+} from '../api/utils';
+import ReactTooltip from 'react-tooltip';
+import { useWallet } from '../common/Auth';
 import _ from 'lodash';
 interface QuadraticFundingFormProps {
   stepper: typeof FormStepper;
@@ -34,58 +39,59 @@ const ValidationSchema = yup.object().shape({
     quadraticFundingConfig: yup.object({
       matchingFundsAvailable: yup
         .number()
-        .typeError("Matching funds available must be a valid number.")
-        .moreThan(0, "Matching funds available must be more than zero."),
+        .typeError('Matching funds available must be a valid number.')
+        .moreThan(0, 'Matching funds available must be more than zero.'),
       matchingCap: yup
         .boolean()
-        .required("You must select if you want a matching cap for projects."),
+        .required('You must select if you want a matching cap for projects.'),
       matchingCapAmount: yup
         .number()
         .transform((value) => (isNaN(value) ? 0 : value))
-        .when("matchingCap", {
+        .when('matchingCap', {
           is: true,
           then: yup
             .number()
-            .required("You must provide an amount for the matching cap.")
-            .moreThan(0, "Matching cap amount must be more than zero.")
+            .required('You must provide an amount for the matching cap.')
+            .moreThan(0, 'Matching cap amount must be more than zero.')
             .max(
               100,
-              "Matching cap amount must be less than or equal to 100%."
+              'Matching cap amount must be less than or equal to 100%.'
             ),
         }),
       minDonationThreshold: yup
         .boolean()
-        .required("You must select if you want a minimum donation threshold."),
+        .required('You must select if you want a minimum donation threshold.'),
       minDonationThresholdAmount: yup
         .number()
         .transform((value) => (isNaN(value) ? 0 : value))
-        .when("minDonationThreshold", {
+        .when('minDonationThreshold', {
           is: true,
           then: yup
             .number()
             .required(
-              "You must provide an amount for the minimum donation threshold."
+              'You must provide an amount for the minimum donation threshold.'
             )
-            .moreThan(0, "Minimum donation threshold must be more than zero."),
+            .moreThan(0, 'Minimum donation threshold must be more than zero.'),
         }),
       sybilDefense: yup
         .boolean()
-        .required("You must select if you want to use sybil defense."),
+        .required('You must select if you want to use sybil defense.'),
     }),
   }),
   token: yup
     .string()
-    .required("You must select a payout token for your round.")
+    .required('You must select a payout token for your round.')
     .notOneOf(
-      ["Choose Payout Token"],
-      "You must select a payout token for your round."
+      ['Choose Payout Token'],
+      'You must select a payout token for your round.'
     ),
+  votingStrategy: yup.string().required('You must select a voting strategy.'),
 });
 
 export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
   const { currentStep, setCurrentStep, stepsCount, formData, setFormData } =
     useContext(FormContext);
-  const initialQuadraticFundingConfig: Round["roundMetadata"]["quadraticFundingConfig"] =
+  const initialQuadraticFundingConfig: Round['roundMetadata']['quadraticFundingConfig'] =
     // @ts-expect-error Needs refactoring/typing as a whole
     formData?.roundMetadata.quadraticFundingConfig ?? {
       matchingFundsAvailable: 0,
@@ -97,9 +103,9 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
   const { chain } = useWallet();
   const payoutTokenOptions: PayoutToken[] = [
     {
-      name: "Choose Payout Token",
+      name: 'Choose Payout Token',
       chainId: chain.id,
-      address: "",
+      address: '',
       default: true,
       decimal: 0,
     },
@@ -115,6 +121,7 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
   } = useForm<Round>({
     defaultValues: {
       ...formData,
+      votingStrategy: votingStrategies.LINEAR_QUADRATIC_FUNDING.id,
       roundMetadata: {
         quadraticFundingConfig: initialQuadraticFundingConfig,
       },
@@ -148,7 +155,7 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
               <p className="text-grey-400 mb-4">Quadratic Funding Settings</p>
               <div className="grid grid-cols-6 gap-6">
                 <PayoutTokenDropdown
-                  register={register("token")}
+                  register={register('token')}
                   errors={errors}
                   control={control}
                   payoutTokenOptions={payoutTokenOptions}
@@ -156,12 +163,12 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
                 <MatchingFundsAvailable
                   errors={errors}
                   register={register(
-                    "roundMetadata.quadraticFundingConfig.matchingFundsAvailable",
+                    'roundMetadata.quadraticFundingConfig.matchingFundsAvailable',
                     {
                       valueAsNumber: true,
                     }
                   )}
-                  token={watch("token")}
+                  token={watch('token')}
                   payoutTokenOptions={payoutTokenOptions}
                 />
               </div>
@@ -174,13 +181,13 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
                 <MatchingCap
                   errors={errors}
                   registerMatchingCapAmount={register(
-                    "roundMetadata.quadraticFundingConfig.matchingCapAmount",
+                    'roundMetadata.quadraticFundingConfig.matchingCapAmount',
                     {
                       valueAsNumber: true,
                     }
                   )}
                   control={control}
-                  token={watch("token")}
+                  token={watch('token')}
                   payoutTokenOptions={payoutTokenOptions}
                 />
               </div>
@@ -195,7 +202,7 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
                 <MinDonationThreshold
                   errors={errors}
                   registerMinDonationThreshold={register(
-                    "roundMetadata.quadraticFundingConfig.minDonationThresholdAmount",
+                    'roundMetadata.quadraticFundingConfig.minDonationThresholdAmount',
                     {
                       valueAsNumber: true,
                     }
@@ -233,9 +240,9 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
               </div>
               <p className="text-grey-400 mb-2 mt-1 text-sm">
                 Ensure that project supporters are not bots or sybil with
-                Gitcoin Passport. Learn more about Gitcoin Passport{" "}
-                <a 
-                  href="https://docs.passport.gitcoin.co/overview/readme" 
+                Gitcoin Passport. Learn more about Gitcoin Passport{' '}
+                <a
+                  href="https://docs.passport.gitcoin.co/overview/readme"
                   className="text-violet-300"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -248,12 +255,61 @@ export default function QuadraticFundingForm(props: QuadraticFundingFormProps) {
                 <SybilDefense
                   errors={errors}
                   registerMatchingCapAmount={register(
-                    "roundMetadata.quadraticFundingConfig.sybilDefense"
+                    'roundMetadata.quadraticFundingConfig.sybilDefense'
                   )}
                   control={control}
                 />
               </div>
             </div>
+
+            {/* Lens settings */}
+            {chain.id === ChainId.MUMBAI_CHAIN_ID && (
+              <div className="p-6 bg-white">
+                <div className="grid grid-rows-1 grid-cols-2">
+                  <div>
+                    <p className="text-grey-400">Lens Collect</p>
+                  </div>
+                  <div>
+                    <p className="text-sm justify-end">
+                      <span className="text-right text-violet-400 float-right text-xs mt-3">
+                        *Required
+                      </span>
+                    </p>
+                  </div>
+                  <ReactTooltip
+                    id="matching-cap-tooltip"
+                    place="bottom"
+                    type="dark"
+                    effect="solid"
+                  >
+                    <p className="text-xs">
+                      Grantees will be able to <br />
+                      post on lens about their project <br />
+                      and receive donations by collectors
+                    </p>
+                  </ReactTooltip>
+                </div>
+                <p className="text-grey-400 mb-2 mt-1 text-sm">
+                  Enables supporters to create pubblications on Lens that can be
+                  collected by Lens users as donations. Read more about Lens{' '}
+                  <a
+                    href="https://www.lens.xyz/"
+                    className="text-violet-300"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    here
+                  </a>
+                </p>
+                <div className="flex">
+                  <LensCollect
+                    errors={errors}
+                    registerVotingStrategy={register('votingStrategy')}
+                    control={control}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* FormStepper */}
             <div className="px-6 align-middle py-3.5 shadow-md">
@@ -295,8 +351,8 @@ function PayoutTokenButton(props: {
     <Listbox.Button
       className={`relative w-full cursor-default rounded-md border h-10 ${
         props.errors.token
-          ? "border-red-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm text-red-900 placeholder-red-300 focus-within:outline-none focus-within:border-red-500 focus-within: ring-red-500"
-          : "border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+          ? 'border-red-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm text-red-900 placeholder-red-300 focus-within:outline-none focus-within:border-red-500 focus-within: ring-red-500'
+          : 'border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm'
       }`}
       data-testid="payout-token-select"
     >
@@ -331,7 +387,7 @@ function PayoutTokenInformation() {
         data-background-color="#0E0333"
         data-for="payout-token-tooltip"
         className="inline h-4 w-4 ml-2 mr-3 mb-1"
-        data-testid={"payout-token-tooltip"}
+        data-testid={'payout-token-tooltip'}
       />
       <ReactTooltip
         id="payout-token-tooltip"
@@ -356,7 +412,7 @@ function PayoutTokenDropdown(props: {
   payoutTokenOptions: PayoutToken[];
 }) {
   const { field } = useController({
-    name: "token",
+    name: 'token',
     defaultValue: props.payoutTokenOptions[0].address,
     control: props.control,
     rules: {
@@ -398,9 +454,9 @@ function PayoutTokenDropdown(props: {
                           className={({ active }) =>
                             classNames(
                               active
-                                ? "text-white bg-indigo-600"
-                                : "text-gray-900",
-                              "relative cursor-default select-none py-2 pl-3 pr-9"
+                                ? 'text-white bg-indigo-600'
+                                : 'text-gray-900',
+                              'relative cursor-default select-none py-2 pl-3 pr-9'
                             )
                           }
                           value={token.address}
@@ -418,8 +474,8 @@ function PayoutTokenDropdown(props: {
                                 ) : null}
                                 <span
                                   className={classNames(
-                                    selected ? "font-semibold" : "font-normal",
-                                    "ml-3 block truncate"
+                                    selected ? 'font-semibold' : 'font-normal',
+                                    'ml-3 block truncate'
                                   )}
                                 >
                                   {token.name}
@@ -429,8 +485,8 @@ function PayoutTokenDropdown(props: {
                               {selected ? (
                                 <span
                                   className={classNames(
-                                    active ? "text-white" : "text-indigo-600",
-                                    "absolute inset-y-0 right-0 flex items-center pr-4"
+                                    active ? 'text-white' : 'text-indigo-600',
+                                    'absolute inset-y-0 right-0 flex items-center pr-4'
                                   )}
                                 >
                                   <CheckIcon
@@ -481,10 +537,10 @@ function MatchingFundsAvailable(props: {
         <Input
           {...props.register}
           className={
-            "block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10"
+            'block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10'
           }
           type="number"
-          id={"roundMetadata.matchingFunds.matchingFundsAvailable"}
+          id={'roundMetadata.matchingFunds.matchingFundsAvailable'}
           $hasError={
             props.errors?.roundMetadata?.quadraticFundingConfig
               ?.matchingFundsAvailable
@@ -525,7 +581,7 @@ function MatchingCap(props: {
   payoutTokenOptions: PayoutToken[];
 }) {
   const { field: matchingCapField } = useController({
-    name: "roundMetadata.quadraticFundingConfig.matchingCap",
+    name: 'roundMetadata.quadraticFundingConfig.matchingCap',
     defaultValue: false,
     control: props.control,
     rules: {
@@ -536,7 +592,7 @@ function MatchingCap(props: {
   // get matching cap amount from form
 
   const amt = useWatch({
-    name: "roundMetadata.quadraticFundingConfig.matchingCapAmount",
+    name: 'roundMetadata.quadraticFundingConfig.matchingCapAmount',
     control: props.control,
   });
 
@@ -545,7 +601,7 @@ function MatchingCap(props: {
   >(amt?.toString());
 
   const matchingFunds = useWatch({
-    name: "roundMetadata.quadraticFundingConfig.matchingFundsAvailable",
+    name: 'roundMetadata.quadraticFundingConfig.matchingFundsAvailable',
     control: props.control,
   });
 
@@ -570,7 +626,7 @@ function MatchingCap(props: {
                 data-background-color="#0E0333"
                 data-for="matching-cap-tooltip"
                 className="inline h-4 w-4 ml-2 mr-3 mb-1"
-                data-testid={"matching-cap-tooltip"}
+                data-testid={'matching-cap-tooltip'}
               />
             </p>
             <ReactTooltip
@@ -593,10 +649,10 @@ function MatchingCap(props: {
                   <span
                     className={classNames(
                       checked
-                        ? "bg-indigo-600 border-transparent"
-                        : "bg-white border-gray-300",
-                      active ? "ring-2 ring-offset-2 ring-indigo-500" : "",
-                      "h-4 w-4 rounded-full border flex items-center justify-center"
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
                     )}
                     aria-hidden="true"
                   >
@@ -618,10 +674,10 @@ function MatchingCap(props: {
                   <span
                     className={classNames(
                       checked
-                        ? "bg-indigo-600 border-transparent"
-                        : "bg-white border-gray-300",
-                      active ? "ring-2 ring-offset-2 ring-indigo-500" : "",
-                      "h-4 w-4 rounded-full border flex items-center justify-center"
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
                     )}
                     aria-hidden="true"
                   >
@@ -655,7 +711,7 @@ function MatchingCap(props: {
           </div>
           <Input
             className={
-              "block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 h-10"
+              'block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 h-10'
             }
             {...props.registerMatchingCapAmount}
             $hasError={
@@ -664,7 +720,7 @@ function MatchingCap(props: {
                 ?.matchingCapAmount
             }
             type="number"
-            id={"matchingCapAmount"}
+            id={'matchingCapAmount'}
             disabled={!isMatchingCap}
             placeholder="Enter matching cap in form of percentage."
             data-testid="matching-cap-percent"
@@ -672,7 +728,7 @@ function MatchingCap(props: {
             max="100"
             step="any"
             onKeyUp={(e) =>
-              e.currentTarget.value !== ""
+              e.currentTarget.value !== ''
                 ? setMatchingCapAmount(e.currentTarget.value)
                 : setMatchingCapAmount(undefined)
             }
@@ -698,7 +754,7 @@ function MatchingCap(props: {
       >
         A single project can only receive a maximum of {matchingCapAmount} % of
         the matching fund (=
-        {matchingValue}{" "}
+        {matchingValue}{' '}
         {
           props.payoutTokenOptions.find(
             (token) => token.address === props.token
@@ -716,7 +772,7 @@ function MinDonationThreshold(props: {
   control?: Control<Round>;
 }) {
   const { field: minDonationThresholdField } = useController({
-    name: "roundMetadata.quadraticFundingConfig.minDonationThreshold",
+    name: 'roundMetadata.quadraticFundingConfig.minDonationThreshold',
     defaultValue: false,
     control: props.control,
     rules: {
@@ -727,7 +783,7 @@ function MinDonationThreshold(props: {
 
   // watch for minDonationAmount
   const amt = useWatch({
-    name: "roundMetadata.quadraticFundingConfig.minDonationThresholdAmount",
+    name: 'roundMetadata.quadraticFundingConfig.minDonationThresholdAmount',
     control: props.control,
   });
   const [minDonationAmount, setMinDonationAmount] = useState(amt);
@@ -762,7 +818,7 @@ function MinDonationThreshold(props: {
               effect="solid"
             >
               <p className="text-xs">
-                Set a minimum amount for each <br /> 
+                Set a minimum amount for each <br />
                 donation to be eligible for matching.
               </p>
             </ReactTooltip>
@@ -774,10 +830,10 @@ function MinDonationThreshold(props: {
                   <span
                     className={classNames(
                       checked
-                        ? "bg-indigo-600 border-transparent"
-                        : "bg-white border-gray-300",
-                      active ? "ring-2 ring-offset-2 ring-indigo-500" : "",
-                      "h-4 w-4 rounded-full border flex items-center justify-center"
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
                     )}
                     aria-hidden="true"
                   >
@@ -799,10 +855,10 @@ function MinDonationThreshold(props: {
                   <span
                     className={classNames(
                       checked
-                        ? "bg-indigo-600 border-transparent"
-                        : "bg-white border-gray-300",
-                      active ? "ring-2 ring-offset-2 ring-indigo-500" : "",
-                      "h-4 w-4 rounded-full border flex items-center justify-center"
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
                     )}
                     aria-hidden="true"
                   >
@@ -836,7 +892,7 @@ function MinDonationThreshold(props: {
           </div>
           <Input
             className={
-              "block w-full rounded-md border-gray-300 pl-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 h-10"
+              'block w-full rounded-md border-gray-300 pl-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 h-10'
             }
             {...props.registerMinDonationThreshold}
             $hasError={
@@ -845,7 +901,7 @@ function MinDonationThreshold(props: {
                 ?.matchingCapAmount
             }
             type="number"
-            id={"minDonationAmount"}
+            id={'minDonationAmount'}
             disabled={!isMinDonation}
             placeholder="Enter minimum donation amount"
             data-testid="min-donation-amount"
@@ -884,7 +940,7 @@ function SybilDefense(props: {
   control?: Control<Round>;
 }) {
   const { field: sybilDefenseField } = useController({
-    name: "roundMetadata.quadraticFundingConfig.sybilDefense",
+    name: 'roundMetadata.quadraticFundingConfig.sybilDefense',
     defaultValue: false,
     control: props.control,
     rules: {
@@ -894,7 +950,7 @@ function SybilDefense(props: {
 
   return (
     <>
-      {" "}
+      {' '}
       <div className="col-span-6 sm:col-span-3">
         <RadioGroup
           {...sybilDefenseField}
@@ -907,10 +963,10 @@ function SybilDefense(props: {
                   <span
                     className={classNames(
                       checked
-                        ? "bg-indigo-600 border-transparent"
-                        : "bg-white border-gray-300",
-                      active ? "ring-2 ring-offset-2 ring-indigo-500" : "",
-                      "h-4 w-4 rounded-full border flex items-center justify-center"
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
                     )}
                     aria-hidden="true"
                   >
@@ -936,10 +992,10 @@ function SybilDefense(props: {
                   <span
                     className={classNames(
                       checked
-                        ? "bg-indigo-600 border-transparent"
-                        : "bg-white border-gray-300",
-                      active ? "ring-2 ring-offset-2 ring-indigo-500" : "",
-                      "h-4 w-4 rounded-full border flex items-center justify-center"
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
                     )}
                     aria-hidden="true"
                   >
@@ -954,6 +1010,98 @@ function SybilDefense(props: {
                     <p className="text-xs text-gray-400">
                       Allow matching for all donation, including potentially
                       sybil ones.
+                    </p>
+                  </RadioGroup.Label>
+                </span>
+              )}
+            </RadioGroup.Option>
+          </div>
+        </RadioGroup>
+      </div>
+    </>
+  );
+}
+
+function LensCollect(props: {
+  registerVotingStrategy: UseFormRegisterReturn<string>;
+  errors: FieldErrors<Round>;
+  control?: Control<Round>;
+}) {
+  const { field: votingStrategyField } = useController({
+    name: 'votingStrategy',
+    defaultValue: '',
+    control: props.control,
+    rules: {
+      required: true,
+    },
+  });
+
+  return (
+    <>
+      {' '}
+      <div className="col-span-6 sm:col-span-3">
+        <RadioGroup
+          {...votingStrategyField}
+          data-testid="sybil-defense-selection"
+        >
+          <div>
+            <RadioGroup.Option
+              value={votingStrategies.LENS_COLLECT.id}
+              className="mb-2"
+            >
+              {({ checked, active }) => (
+                <span className="flex items-center text-sm">
+                  <span
+                    className={classNames(
+                      checked
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
+                    )}
+                    aria-hidden="true"
+                  >
+                    <span className="rounded-full bg-white w-1.5 h-1.5" />
+                  </span>
+                  <RadioGroup.Label
+                    as="span"
+                    className="ml-3 block text-sm text-gray-700"
+                    data-testid="sybil-defense-true"
+                  >
+                    Yes, enable Lens Collect
+                    <p className="text-xs text-gray-400">
+                      Allow grantees to receive donation through Lens.
+                    </p>
+                  </RadioGroup.Label>
+                </span>
+              )}
+            </RadioGroup.Option>
+            <RadioGroup.Option
+              value={votingStrategies.LINEAR_QUADRATIC_FUNDING.id}
+            >
+              {({ checked, active }) => (
+                <span className="flex items-center text-sm">
+                  <span
+                    className={classNames(
+                      checked
+                        ? 'bg-indigo-600 border-transparent'
+                        : 'bg-white border-gray-300',
+                      active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
+                      'h-4 w-4 rounded-full border flex items-center justify-center'
+                    )}
+                    aria-hidden="true"
+                  >
+                    <span className="rounded-full bg-white w-1.5 h-1.5" />
+                  </span>
+                  <RadioGroup.Label
+                    as="span"
+                    className="ml-3 block text-sm text-gray-700"
+                    data-testid="sybil-defense-false"
+                  >
+                    No, disable Lens Collect (default)
+                    <p className="text-xs text-gray-400">
+                      Allow grantees to receive donation only through the grant
+                      explorer
                     </p>
                   </RadioGroup.Label>
                 </span>

@@ -1,13 +1,13 @@
-import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
-import { BigNumber, ethers } from "ethers";
-import { useMemo, useState } from "react";
+import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
+import { BigNumber, ethers } from 'ethers';
+import { useMemo, useState } from 'react';
 import {
   ApplicationMetadata,
   InputType,
   IPFSObject,
   MatchingStatsData,
   Program,
-} from "./types";
+} from './types';
 
 export enum ChainId {
   MAINNET = 1,
@@ -19,36 +19,36 @@ export enum ChainId {
 }
 
 // NB: number keys are coerced into strings for JS object keys
-export const CHAINS: Record<number, Program["chain"]> = {
+export const CHAINS: Record<number, Program['chain']> = {
   [ChainId.MAINNET]: {
     id: ChainId.MAINNET,
-    name: "Mainnet", // TODO get canonical network names
-    logo: "./logos/ethereum-eth-logo.svg",
+    name: 'Mainnet', // TODO get canonical network names
+    logo: './logos/ethereum-eth-logo.svg',
   },
   [ChainId.GOERLI_CHAIN_ID]: {
     id: ChainId.GOERLI_CHAIN_ID,
-    name: "Goerli", // TODO get canonical network names
-    logo: "./logos/ethereum-eth-logo.svg",
+    name: 'Goerli', // TODO get canonical network names
+    logo: './logos/ethereum-eth-logo.svg',
   },
   [ChainId.OPTIMISM_MAINNET_CHAIN_ID]: {
     id: ChainId.OPTIMISM_MAINNET_CHAIN_ID,
-    name: "Optimism",
-    logo: "./logos/optimism-logo.svg",
+    name: 'Optimism',
+    logo: './logos/optimism-logo.svg',
   },
   [ChainId.FANTOM_MAINNET_CHAIN_ID]: {
     id: ChainId.FANTOM_MAINNET_CHAIN_ID,
-    name: "Fantom",
-    logo: "./logos/fantom-logo.svg",
+    name: 'Fantom',
+    logo: './logos/fantom-logo.svg',
   },
   [ChainId.FANTOM_TESTNET_CHAIN_ID]: {
     id: ChainId.FANTOM_TESTNET_CHAIN_ID,
-    name: "Fantom Testnet",
-    logo: "./logos/fantom-logo.svg",
+    name: 'Fantom Testnet',
+    logo: './logos/fantom-logo.svg',
   },
   [ChainId.MUMBAI_CHAIN_ID]: {
     id: ChainId.MUMBAI_CHAIN_ID,
-    name: "Mumbai Testnet",
-    logo: "./logos/polygon-matic-logo.svg",
+    name: 'Mumbai Testnet',
+    logo: './logos/polygon-matic-logo.svg',
   },
 };
 
@@ -69,152 +69,161 @@ export type SupportType = {
 };
 
 export const TokenNamesAndLogos: Record<string, string> = {
-  MATIC: "./logos/polygon-matic-logo.svg",
-  FTM: "./logos/fantom-logo.svg",
-  BUSD: "./logos/busd-logo.svg",
-  DAI: "./logos/dai-logo.svg",
-  ETH: "./logos/ethereum-eth-logo.svg",
+  MATIC: './logos/polygon-matic-logo.svg',
+  FTM: './logos/fantom-logo.svg',
+  BUSD: './logos/busd-logo.svg',
+  DAI: './logos/dai-logo.svg',
+  ETH: './logos/ethereum-eth-logo.svg',
 };
 
 export const TokenAndCoinGeckoIds: Record<string, string> = {
-  MATIC: "matic",
-  FTM: "fantom",
-  BUSD: "binance-usd",
-  DAI: "dai",
-  ETH: "ethereum",
+  MATIC: 'matic',
+  FTM: 'fantom',
+  BUSD: 'binance-usd',
+  DAI: 'dai',
+  ETH: 'ethereum',
 };
 
 export const payoutTokens: PayoutToken[] = [
   {
-    name: "DAI",
+    name: 'DAI',
     chainId: ChainId.MAINNET,
-    address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    logo: TokenNamesAndLogos["DAI"],
-    coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    logo: TokenNamesAndLogos['DAI'],
+    coingeckoId: TokenAndCoinGeckoIds['DAI'],
     decimal: 18,
   },
   {
-    name: "ETH",
+    name: 'ETH',
     chainId: ChainId.MAINNET,
     address: ethers.constants.AddressZero,
-    logo: TokenNamesAndLogos["ETH"],
-    coingeckoId: TokenAndCoinGeckoIds["ETH"],
+    logo: TokenNamesAndLogos['ETH'],
+    coingeckoId: TokenAndCoinGeckoIds['ETH'],
     decimal: 18,
   },
   {
-    name: "DAI",
+    name: 'DAI',
     chainId: ChainId.OPTIMISM_MAINNET_CHAIN_ID,
-    address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-    logo: TokenNamesAndLogos["DAI"],
-    coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+    logo: TokenNamesAndLogos['DAI'],
+    coingeckoId: TokenAndCoinGeckoIds['DAI'],
     decimal: 18,
   },
   {
-    name: "ETH",
+    name: 'ETH',
     chainId: ChainId.OPTIMISM_MAINNET_CHAIN_ID,
     address: ethers.constants.AddressZero,
-    logo: TokenNamesAndLogos["ETH"],
-    coingeckoId: TokenAndCoinGeckoIds["ETH"],
+    logo: TokenNamesAndLogos['ETH'],
+    coingeckoId: TokenAndCoinGeckoIds['ETH'],
     decimal: 18,
   },
   {
-    name: "WFTM",
+    name: 'WFTM',
     chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
-    address: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
-    logo: TokenNamesAndLogos["FTM"],
-    coingeckoId: TokenAndCoinGeckoIds["FTM"],
+    address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    logo: TokenNamesAndLogos['FTM'],
+    coingeckoId: TokenAndCoinGeckoIds['FTM'],
     decimal: 18,
   },
   {
-    name: "FTM",
+    name: 'FTM',
     chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
     address: ethers.constants.AddressZero,
-    logo: TokenNamesAndLogos["FTM"],
-    coingeckoId: TokenAndCoinGeckoIds["FTM"],
+    logo: TokenNamesAndLogos['FTM'],
+    coingeckoId: TokenAndCoinGeckoIds['FTM'],
     decimal: 18,
   },
   {
-    name: "BUSD",
+    name: 'BUSD',
     chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
-    address: "0xC931f61B1534EB21D8c11B24f3f5Ab2471d4aB50",
-    logo: TokenNamesAndLogos["BUSD"],
-    coingeckoId: TokenAndCoinGeckoIds["BUSD"],
+    address: '0xC931f61B1534EB21D8c11B24f3f5Ab2471d4aB50',
+    logo: TokenNamesAndLogos['BUSD'],
+    coingeckoId: TokenAndCoinGeckoIds['BUSD'],
     decimal: 18,
   },
   {
-    name: "DAI",
+    name: 'DAI',
     chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
-    address: "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e",
-    logo: TokenNamesAndLogos["DAI"],
-    coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    address: '0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e',
+    logo: TokenNamesAndLogos['DAI'],
+    coingeckoId: TokenAndCoinGeckoIds['DAI'],
     decimal: 18,
   },
   {
-    name: "DAI",
+    name: 'DAI',
     chainId: ChainId.FANTOM_TESTNET_CHAIN_ID,
-    address: "0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4",
-    logo: TokenNamesAndLogos["DAI"],
-    coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    address: '0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4',
+    logo: TokenNamesAndLogos['DAI'],
+    coingeckoId: TokenAndCoinGeckoIds['DAI'],
     decimal: 18,
   },
   {
-    name: "WMATIC",
+    name: 'WMATIC',
     chainId: ChainId.MUMBAI_CHAIN_ID,
-    address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
-    logo: TokenNamesAndLogos["MATIC"],
-    coingeckoId: TokenAndCoinGeckoIds["MATIC"],
+    address: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+    logo: TokenNamesAndLogos['MATIC'],
+    coingeckoId: TokenAndCoinGeckoIds['MATIC'],
     decimal: 18,
   },
   {
-    name: "BUSD",
+    name: 'BUSD',
     chainId: ChainId.GOERLI_CHAIN_ID,
-    address: "0xa7c3bf25ffea8605b516cf878b7435fe1768c89b",
-    logo: TokenNamesAndLogos["BUSD"],
-    coingeckoId: TokenAndCoinGeckoIds["BUSD"],
+    address: '0xa7c3bf25ffea8605b516cf878b7435fe1768c89b',
+    logo: TokenNamesAndLogos['BUSD'],
+    coingeckoId: TokenAndCoinGeckoIds['BUSD'],
     decimal: 18,
   },
   {
-    name: "DAI",
+    name: 'DAI',
     chainId: ChainId.GOERLI_CHAIN_ID,
-    address: "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844",
-    logo: TokenNamesAndLogos["DAI"],
-    coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+    logo: TokenNamesAndLogos['DAI'],
+    coingeckoId: TokenAndCoinGeckoIds['DAI'],
     decimal: 18,
   },
   {
-    name: "LOLG",
+    name: 'LOLG',
     chainId: ChainId.GOERLI_CHAIN_ID,
-    address: "0x7f329D36FeA6b3AD10E6e36f2728e7e6788a938D",
-    logo: TokenNamesAndLogos["DAI"],
-    coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    address: '0x7f329D36FeA6b3AD10E6e36f2728e7e6788a938D',
+    logo: TokenNamesAndLogos['DAI'],
+    coingeckoId: TokenAndCoinGeckoIds['DAI'],
     decimal: 18,
   },
   {
-    name: "ETH",
+    name: 'ETH',
     chainId: ChainId.GOERLI_CHAIN_ID,
     address: ethers.constants.AddressZero,
-    logo: TokenNamesAndLogos["ETH"],
-    coingeckoId: TokenAndCoinGeckoIds["ETH"],
+    logo: TokenNamesAndLogos['ETH'],
+    coingeckoId: TokenAndCoinGeckoIds['ETH'],
     decimal: 18,
   },
 ];
+
+export const votingStrategies = {
+  LENS_COLLECT: { id: 'LENS_COLLECT', name: 'LensCollect' },
+  LINEAR_QUADRATIC_FUNDING: {
+    id: 'LINEAR_QUADRATIC_FUNDING',
+    name: 'Quadratic funding',
+  },
+};
+
 /*TODO: merge this and the above into one list / function*/
 export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
   switch (chainId) {
     case ChainId.MAINNET: {
       return [
         {
-          name: "DAI",
+          name: 'DAI',
           chainId: ChainId.MAINNET,
-          address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-          logo: TokenNamesAndLogos["DAI"],
+          address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          logo: TokenNamesAndLogos['DAI'],
           decimal: 18,
         },
         {
-          name: "ETH",
+          name: 'ETH',
           chainId: ChainId.MAINNET,
           address: ethers.constants.AddressZero,
-          logo: TokenNamesAndLogos["ETH"],
+          logo: TokenNamesAndLogos['ETH'],
           decimal: 18,
         },
       ];
@@ -222,17 +231,17 @@ export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
     case ChainId.OPTIMISM_MAINNET_CHAIN_ID: {
       return [
         {
-          name: "DAI",
+          name: 'DAI',
           chainId: ChainId.OPTIMISM_MAINNET_CHAIN_ID,
-          address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-          logo: TokenNamesAndLogos["DAI"],
+          address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+          logo: TokenNamesAndLogos['DAI'],
           decimal: 18,
         },
         {
-          name: "ETH",
+          name: 'ETH',
           chainId: ChainId.OPTIMISM_MAINNET_CHAIN_ID,
           address: ethers.constants.AddressZero,
-          logo: TokenNamesAndLogos["ETH"],
+          logo: TokenNamesAndLogos['ETH'],
           decimal: 18,
         },
       ];
@@ -240,31 +249,31 @@ export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
     case ChainId.FANTOM_MAINNET_CHAIN_ID: {
       return [
         {
-          name: "WFTM",
+          name: 'WFTM',
           chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
-          address: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
-          logo: TokenNamesAndLogos["FTM"],
+          address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+          logo: TokenNamesAndLogos['FTM'],
           decimal: 18,
         },
         {
-          name: "FTM",
+          name: 'FTM',
           chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
           address: ethers.constants.AddressZero,
-          logo: TokenNamesAndLogos["FTM"],
+          logo: TokenNamesAndLogos['FTM'],
           decimal: 18,
         },
         {
-          name: "BUSD",
+          name: 'BUSD',
           chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
-          address: "0xC931f61B1534EB21D8c11B24f3f5Ab2471d4aB50",
-          logo: TokenNamesAndLogos["BUSD"],
+          address: '0xC931f61B1534EB21D8c11B24f3f5Ab2471d4aB50',
+          logo: TokenNamesAndLogos['BUSD'],
           decimal: 18,
         },
         {
-          name: "DAI",
+          name: 'DAI',
           chainId: ChainId.FANTOM_MAINNET_CHAIN_ID,
-          address: "0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E",
-          logo: TokenNamesAndLogos["DAI"],
+          address: '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E',
+          logo: TokenNamesAndLogos['DAI'],
           decimal: 18,
         },
       ];
@@ -272,10 +281,10 @@ export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
     case ChainId.FANTOM_TESTNET_CHAIN_ID: {
       return [
         {
-          name: "DAI",
+          name: 'DAI',
           chainId: ChainId.FANTOM_TESTNET_CHAIN_ID,
-          address: "0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4",
-          logo: TokenNamesAndLogos["DAI"],
+          address: '0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4',
+          logo: TokenNamesAndLogos['DAI'],
           decimal: 18,
         },
       ];
@@ -283,10 +292,10 @@ export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
     case ChainId.MUMBAI_CHAIN_ID: {
       return [
         {
-          name: "WMATIC",
+          name: 'WMATIC',
           chainId: ChainId.MUMBAI_CHAIN_ID,
-          address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
-          logo: TokenNamesAndLogos["WMATIC"],
+          address: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+          logo: TokenNamesAndLogos['WMATIC'],
           decimal: 18,
         },
       ];
@@ -295,24 +304,24 @@ export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
     default: {
       return [
         {
-          name: "BUSD",
+          name: 'BUSD',
           chainId: ChainId.GOERLI_CHAIN_ID,
-          address: "0xa7c3bf25ffea8605b516cf878b7435fe1768c89b",
-          logo: TokenNamesAndLogos["BUSD"],
+          address: '0xa7c3bf25ffea8605b516cf878b7435fe1768c89b',
+          logo: TokenNamesAndLogos['BUSD'],
           decimal: 18,
         },
         {
-          name: "DAI",
+          name: 'DAI',
           chainId: ChainId.GOERLI_CHAIN_ID,
-          address: "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844",
-          logo: TokenNamesAndLogos["DAI"],
+          address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+          logo: TokenNamesAndLogos['DAI'],
           decimal: 18,
         },
         {
-          name: "ETH",
+          name: 'ETH',
           chainId: ChainId.GOERLI_CHAIN_ID,
           address: ethers.constants.AddressZero,
-          logo: TokenNamesAndLogos["ETH"],
+          logo: TokenNamesAndLogos['ETH'],
           decimal: 18,
         },
       ];
@@ -346,7 +355,7 @@ export const fetchFromIPFS = (cid: string) => {
  */
 export const pinToIPFS = (obj: IPFSObject) => {
   const params = {
-    method: "POST",
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${process.env.REACT_APP_PINATA_JWT}`,
     },
@@ -362,11 +371,11 @@ export const pinToIPFS = (obj: IPFSObject) => {
   if (obj.content instanceof Blob) {
     // content is a blob
     const fd = new FormData();
-    fd.append("file", obj.content as Blob);
-    fd.append("pinataOptions", JSON.stringify(params.body.pinataOptions));
-    fd.append("pinataMetadata", JSON.stringify(params.body.pinataMetadata));
+    fd.append('file', obj.content as Blob);
+    fd.append('pinataOptions', JSON.stringify(params.body.pinataOptions));
+    fd.append('pinataMetadata', JSON.stringify(params.body.pinataMetadata));
 
-    return fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+    return fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
       ...params,
       body: fd,
     }).then((resp) => {
@@ -378,11 +387,11 @@ export const pinToIPFS = (obj: IPFSObject) => {
     });
   } else {
     // content is a JSON object
-    return fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+    return fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
       ...params,
       headers: {
         ...params.headers,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ ...params.body, pinataContent: obj.content }),
     }).then((resp) => {
@@ -431,8 +440,8 @@ export interface ApplicationSchema {
  * @returns The application schema
  */
 export const generateApplicationSchema = (
-  questions: ApplicationMetadata["questions"],
-  requirements: ApplicationMetadata["requirements"]
+  questions: ApplicationMetadata['questions'],
+  requirements: ApplicationMetadata['requirements']
 ): ApplicationSchema => {
   const schema = { questions: new Array<SchemaQuestion>(), requirements };
   if (!questions) return schema;
@@ -443,7 +452,7 @@ export const generateApplicationSchema = (
       title: question.title,
       type: question.type,
       required: question.required,
-      info: "",
+      info: '',
       choices: question.choices,
       hidden: question.hidden,
       encrypted: question.encrypted,
@@ -457,15 +466,15 @@ export const generateApplicationSchema = (
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function saveObjectAsJson(filename: string, dataObjToWrite: any) {
   const blob = new Blob([JSON.stringify(dataObjToWrite)], {
-    type: "text/json",
+    type: 'text/json',
   });
-  const link = document.createElement("a");
+  const link = document.createElement('a');
 
   link.download = filename;
   link.href = window.URL.createObjectURL(blob);
-  link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+  link.dataset.downloadurl = ['text/json', link.download, link.href].join(':');
 
-  const evt = new MouseEvent("click", {
+  const evt = new MouseEvent('click', {
     view: window,
     bubbles: true,
     cancelable: true,
@@ -479,7 +488,7 @@ export function saveObjectAsJson(filename: string, dataObjToWrite: any) {
 export const isJestRunning = () => process.env.JEST_WORKER_ID !== undefined;
 
 export const prefixZero = (i: number): string =>
-  i < 10 ? "0" + i : i.toString();
+  i < 10 ? '0' + i : i.toString();
 
 export const getUTCDate = (date: Date): string => {
   const utcDate = [
@@ -488,7 +497,7 @@ export const getUTCDate = (date: Date): string => {
     prefixZero(date.getUTCFullYear()),
   ];
 
-  return utcDate.join("/");
+  return utcDate.join('/');
 };
 
 export const getUTCTime = (date: Date): string => {
@@ -497,13 +506,13 @@ export const getUTCTime = (date: Date): string => {
     prefixZero(date.getUTCMinutes()),
   ];
 
-  return utcTime.join(":") + " UTC";
+  return utcTime.join(':') + ' UTC';
 };
 
 export function typeToText(s: string) {
-  if (s == "address") return "Wallet address";
-  if (s == "checkbox") return "Checkboxes";
-  return (s.charAt(0).toUpperCase() + s.slice(1)).replace("-", " ");
+  if (s == 'address') return 'Wallet address';
+  if (s == 'checkbox') return 'Checkboxes';
+  return (s.charAt(0).toUpperCase() + s.slice(1)).replace('-', ' ');
 }
 
 export const useTokenPrice = (tokenId: string | undefined) => {
@@ -516,10 +525,10 @@ export const useTokenPrice = (tokenId: string | undefined) => {
     const tokenPriceEndpoint = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=usd`;
     fetch(tokenPriceEndpoint, {
       headers: {
-        method: "GET",
-        Accept: "application/json",
+        method: 'GET',
+        Accept: 'application/json',
       },
-      mode: "no-cors",
+      mode: 'no-cors',
     })
       .then((resp) => {
         if (resp.ok) {
@@ -540,7 +549,7 @@ export const useTokenPrice = (tokenId: string | undefined) => {
         setLoading(false);
       })
       .catch((err) => {
-        console.log("error fetching token price", { err });
+        console.log('error fetching token price', { err });
         setError(err);
         setLoading(false);
       });
@@ -613,10 +622,10 @@ export const generateMerkleTree = (
   });
 
   const tree = StandardMerkleTree.of(distribution, [
-    "uint256",
-    "address",
-    "uint256",
-    "bytes32",
+    'uint256',
+    'address',
+    'uint256',
+    'bytes32',
   ]);
 
   return { distribution, tree, matchingResults };
@@ -629,7 +638,7 @@ export const formatCurrency = (
 ) => {
   return parseFloat(
     ethers.utils.formatUnits(value.toString(), decimal)
-  ).toLocaleString("en-US", {
+  ).toLocaleString('en-US', {
     maximumFractionDigits: fraction || 3,
   });
 };

@@ -181,7 +181,7 @@ export const qfVotingStrategyFactoryContract = (
       break;
     }
     case ChainId.MUMBAI_CHAIN_ID: {
-      address = '';
+      address = '0xFA8f0b9640dE7B220fD2D8815e2AD7Fb020c3d4c';
       break;
     }
     case ChainId.GOERLI_CHAIN_ID:
@@ -204,11 +204,11 @@ export const lensVotingStrategyFactoryContract = (
 
   switch (chainId) {
     case ChainId.MAINNET: {
-      address = '0x4a850F463D1C4842937c5Bc9540dBc803D744c9F';
+      address = '';
       break;
     }
     case ChainId.OPTIMISM_MAINNET_CHAIN_ID: {
-      address = '0xE1F4A28299966686c689223Ee7803258Dbde0942';
+      address = '';
       break;
     }
     case ChainId.FANTOM_MAINNET_CHAIN_ID: {
@@ -225,7 +225,7 @@ export const lensVotingStrategyFactoryContract = (
     }
     case ChainId.GOERLI_CHAIN_ID:
     default: {
-      address = '0x06A6Cc566c5A88E77B1353Cdc3110C2e6c828e38';
+      address = '';
       break;
     }
   }
