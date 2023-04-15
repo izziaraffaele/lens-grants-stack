@@ -7,9 +7,11 @@ export enum ChainId {
   OPTIMISM_MAINNET_CHAIN_ID = "10",
   FANTOM_MAINNET_CHAIN_ID = "250",
   FANTOM_TESTNET_CHAIN_ID = "4002",
+  MUMBAI_CHAIN_ID = "80001",
 }
 
 export const TokenNamesAndLogos: Record<string, string> = {
+  WMATIC: "./logos/polygon-matic-logo.svg",
   FTM: "./logos/fantom-logo.svg",
   BUSD: "./logos/busd-logo.svg",
   DAI: "./logos/dai-logo.svg",
@@ -17,6 +19,7 @@ export const TokenNamesAndLogos: Record<string, string> = {
 };
 
 export const TokenAndCoinGeckoIds: Record<string, string> = {
+  WMATIC: "matic",
   FTM: "fantom",
   BUSD: "binance-usd",
   DAI: "dai",
@@ -86,6 +89,13 @@ export const payoutTokens = [
     address: "0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4",
     logo: TokenNamesAndLogos["DAI"],
     coingeckoId: TokenAndCoinGeckoIds["DAI"],
+  },
+  {
+    name: "DAI",
+    chainId: ChainId.MUMBAI_CHAIN_ID,
+    address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+    logo: TokenNamesAndLogos["WMATIC"],
+    coingeckoId: TokenAndCoinGeckoIds["WMATIC"],
   },
   {
     name: "BUSD",
@@ -191,6 +201,17 @@ export const getPayoutTokenOptions = (chainId: string): PayoutToken[] => {
         },
       ];
     }
+    case ChainId.MUMBAI_CHAIN_ID: {
+      return [
+        {
+          name: "DAI",
+          chainId: ChainId.MUMBAI_CHAIN_ID,
+          address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+          decimal: 18,
+          logo: TokenNamesAndLogos["WMATIC"],
+        },
+      ];
+    }
     case ChainId.GOERLI_CHAIN_ID:
     default: {
       return [
@@ -240,6 +261,9 @@ const getGraphQLEndpoint = async (chainId: ChainId) => {
     case ChainId.FANTOM_TESTNET_CHAIN_ID:
       return `${process.env.REACT_APP_SUBGRAPH_FANTOM_TESTNET_API}`;
 
+    case ChainId.MUMBAI_CHAIN_ID:
+      return `${process.env.REACT_APP_SUBGRAPH_MUMBAI_API}`;
+
     case ChainId.GOERLI_CHAIN_ID:
     default:
       return `${process.env.REACT_APP_SUBGRAPH_GOERLI_API}`;
@@ -263,6 +287,9 @@ export const getTxExplorer = (chainId?: ChainId, txHash?: string) => {
 
     case ChainId.FANTOM_TESTNET_CHAIN_ID:
       return `https://testnet.ftmscan.com/tx/${txHash}`;
+
+    case ChainId.MUMBAI_CHAIN_ID:
+      return `https://mumbai.polygonscan.com/tx/${txHash}`;
 
     case ChainId.MAINNET:
       return `https://etherscan.io/tx/${txHash}`;

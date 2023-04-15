@@ -3,22 +3,23 @@ import {
   ProjectRequirements,
   Round,
   StorageProtocolID,
-} from "../../features/api/types";
+} from '../../features/api/types';
 import React, {
   createContext,
   SetStateAction,
   useContext,
   useState,
-} from "react";
-import { saveToIPFS } from "../../features/api/ipfs";
-import { useWallet } from "../../features/common/Auth";
-import { deployRoundContract } from "../../features/api/round";
-import { waitForSubgraphSyncTo } from "../../features/api/subgraph";
-import { SchemaQuestion } from "../../features/api/utils";
-import { datadogLogs } from "@datadog/browser-logs";
-import { Signer } from "@ethersproject/abstract-signer";
-import { deployQFVotingContract } from "../../features/api/votingStrategy/qfVotingStrategy";
-import { deployMerklePayoutStrategyContract } from "../../features/api/payoutStrategy/merklePayoutStrategy";
+} from 'react';
+import { saveToIPFS } from '../../features/api/ipfs';
+import { useWallet } from '../../features/common/Auth';
+import { deployRoundContract } from '../../features/api/round';
+import { waitForSubgraphSyncTo } from '../../features/api/subgraph';
+import { SchemaQuestion } from '../../features/api/utils';
+import { datadogLogs } from '@datadog/browser-logs';
+import { Signer } from '@ethersproject/abstract-signer';
+import { deployLensVotingContract } from '../../features/api/votingStrategy/lensVotingStrategy';
+// import { deployQFVotingContract } from '../../features/api/votingStrategy/qfVotingStrategy';
+import { deployMerklePayoutStrategyContract } from '../../features/api/payoutStrategy/merklePayoutStrategy';
 
 type SetStatusFn = React.Dispatch<SetStateAction<ProgressStatus>>;
 
@@ -36,7 +37,7 @@ export interface CreateRoundState {
 }
 
 export type CreateRoundData = {
-  roundMetadataWithProgramContractAddress: Round["roundMetadata"];
+  roundMetadataWithProgramContractAddress: Round['roundMetadata'];
   applicationQuestions: {
     version: string;
     lastUpdatedOn: number;
@@ -193,14 +194,14 @@ const _createRound = async ({
       `error: _createRound ${error}. Data : ${createRoundData}`
     );
 
-    console.error("_createRound", error);
+    console.error('_createRound', error);
   }
 };
 
 export const useCreateRound = () => {
   const context = useContext(CreateRoundContext);
   if (context === undefined) {
-    throw new Error("useCreateRound must be used within a CreateRoundProvider");
+    throw new Error('useCreateRound must be used within a CreateRoundProvider');
   }
 
   const {
@@ -258,8 +259,8 @@ function resetToInitialState(
 
 async function storeDocuments(
   setStoringStatus: SetStatusFn,
-  roundMetadataWithProgramContractAddress: CreateRoundData["roundMetadataWithProgramContractAddress"],
-  applicationQuestions: CreateRoundData["applicationQuestions"]
+  roundMetadataWithProgramContractAddress: CreateRoundData['roundMetadataWithProgramContractAddress'],
+  applicationQuestions: CreateRoundData['applicationQuestions']
 ) {
   try {
     setStoringStatus(ProgressStatus.IN_PROGRESS);
@@ -269,13 +270,13 @@ async function storeDocuments(
         saveToIPFS({
           content: roundMetadataWithProgramContractAddress,
           metadata: {
-            name: "round-metadata",
+            name: 'round-metadata',
           },
         }),
         saveToIPFS({
           content: applicationQuestions,
           metadata: {
-            name: "application-schema",
+            name: 'application-schema',
           },
         }),
       ]);
@@ -287,7 +288,7 @@ async function storeDocuments(
       applicationSchemaIpfsHash,
     };
   } catch (error) {
-    console.error("storeDocuments", error);
+    console.error('storeDocuments', error);
 
     setStoringStatus(ProgressStatus.IS_ERROR);
     throw error;
@@ -300,14 +301,14 @@ async function handleDeployVotingContract(
 ): Promise<string> {
   try {
     setDeploymentStatus(ProgressStatus.IN_PROGRESS);
-    const { votingContractAddress } = await deployQFVotingContract(
+    const { votingContractAddress } = await deployLensVotingContract(
       signerOrProvider
     );
 
     setDeploymentStatus(ProgressStatus.IS_SUCCESS);
     return votingContractAddress;
   } catch (error) {
-    console.error("handleDeployVotingContract", error);
+    console.error('handleDeployVotingContract', error);
     setDeploymentStatus(ProgressStatus.IS_ERROR);
     throw error;
   }
@@ -326,7 +327,7 @@ async function handleDeployPayoutContract(
     setDeploymentStatus(ProgressStatus.IS_SUCCESS);
     return payoutContractAddress;
   } catch (error) {
-    console.error("handleDeployPayoutContract", error);
+    console.error('handleDeployPayoutContract', error);
     setDeploymentStatus(ProgressStatus.IS_ERROR);
     throw error;
   }
@@ -348,7 +349,7 @@ async function handleDeployRoundContract(
 
     return transactionBlockNumber;
   } catch (error) {
-    console.error("handleDeployRoundContract", error);
+    console.error('handleDeployRoundContract', error);
     setDeploymentStatus(ProgressStatus.IS_ERROR);
     throw error;
   }
@@ -367,7 +368,7 @@ async function waitForSubgraphToUpdate(
 
     setIndexingStatus(ProgressStatus.IS_SUCCESS);
   } catch (error) {
-    console.error("waitForSubgraphToUpdate", error);
+    console.error('waitForSubgraphToUpdate', error);
     setIndexingStatus(ProgressStatus.IS_ERROR);
     throw error;
   }

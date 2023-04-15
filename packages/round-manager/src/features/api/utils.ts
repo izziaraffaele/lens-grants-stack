@@ -15,6 +15,7 @@ export enum ChainId {
   OPTIMISM_MAINNET_CHAIN_ID = 10,
   FANTOM_MAINNET_CHAIN_ID = 250,
   FANTOM_TESTNET_CHAIN_ID = 4002,
+  MUMBAI_CHAIN_ID = 80001,
 }
 
 // NB: number keys are coerced into strings for JS object keys
@@ -44,6 +45,11 @@ export const CHAINS: Record<number, Program["chain"]> = {
     name: "Fantom Testnet",
     logo: "./logos/fantom-logo.svg",
   },
+  [ChainId.MUMBAI_CHAIN_ID]: {
+    id: ChainId.MUMBAI_CHAIN_ID,
+    name: "Mumbai Testnet",
+    logo: "./logos/polygon-matic-logo.svg",
+  },
 };
 
 export type PayoutToken = {
@@ -63,6 +69,7 @@ export type SupportType = {
 };
 
 export const TokenNamesAndLogos: Record<string, string> = {
+  MATIC: "./logos/polygon-matic-logo.svg",
   FTM: "./logos/fantom-logo.svg",
   BUSD: "./logos/busd-logo.svg",
   DAI: "./logos/dai-logo.svg",
@@ -70,6 +77,7 @@ export const TokenNamesAndLogos: Record<string, string> = {
 };
 
 export const TokenAndCoinGeckoIds: Record<string, string> = {
+  MATIC: "matic",
   FTM: "fantom",
   BUSD: "binance-usd",
   DAI: "dai",
@@ -147,6 +155,14 @@ export const payoutTokens: PayoutToken[] = [
     address: "0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4",
     logo: TokenNamesAndLogos["DAI"],
     coingeckoId: TokenAndCoinGeckoIds["DAI"],
+    decimal: 18,
+  },
+  {
+    name: "WMATIC",
+    chainId: ChainId.MUMBAI_CHAIN_ID,
+    address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+    logo: TokenNamesAndLogos["MATIC"],
+    coingeckoId: TokenAndCoinGeckoIds["MATIC"],
     decimal: 18,
   },
   {
@@ -260,6 +276,17 @@ export const getPayoutTokenOptions = (chainId: ChainId): PayoutToken[] => {
           chainId: ChainId.FANTOM_TESTNET_CHAIN_ID,
           address: "0xEdE59D58d9B8061Ff7D22E629AB2afa01af496f4",
           logo: TokenNamesAndLogos["DAI"],
+          decimal: 18,
+        },
+      ];
+    }
+    case ChainId.MUMBAI_CHAIN_ID: {
+      return [
+        {
+          name: "WMATIC",
+          chainId: ChainId.MUMBAI_CHAIN_ID,
+          address: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+          logo: TokenNamesAndLogos["WMATIC"],
           decimal: 18,
         },
       ];
@@ -547,6 +574,9 @@ export const getTxExplorerForContract = (
 
     case ChainId.FANTOM_TESTNET_CHAIN_ID:
       return `https://testnet.ftmscan.com/address/${contractAddress}`;
+
+    case ChainId.MUMBAI_CHAIN_ID:
+      return `https://mumbai.polygonscan.com/address/${contractAddress}`;
 
     case ChainId.MAINNET:
       return `https://etherscan.io/address/${contractAddress}`;

@@ -39,7 +39,7 @@ const testnetChains = () => {
     testnet: true,
   };
 
-  return [chain.goerli, fantomTestnet];
+  return [chain.goerli, chain.polygonMumbai, fantomTestnet];
 };
 
 const mainnetChains = () => {
